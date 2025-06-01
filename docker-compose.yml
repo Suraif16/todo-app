@@ -1,0 +1,77 @@
+services:
+  # MariaDB Database
+  database:
+    image: mariadb:10.11
+    container_name: todo-database
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: todoapp
+      MYSQL_USER: todouser
+      MYSQL_PASSWORD: todopass123
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword123"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    restart: unless-stopped
+
+  # Spring Boot Backend API
+  backend:
+    build:
+      context: ./todo-backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/todoapp
+      SPRING_DATASOURCE_USERNAME: todouser
+      SPRING_DATASOURCE_PASSWORD: todopass123
+      SPRING_PROFILES_ACTIVE: docker
+      # Add other Spring Boot configs as needed
+      LOGGING_LEVEL_ROOT: INFO
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - todo-network
+    # Volume mount removed to prevent overwriting the built JAR file
+    # For development, you can mount only the src directory:
+    # volumes:
+    #   - ./todo-backend/src:/app/src
+    restart: unless-stopped
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./todo-frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - todo-network
+    volumes:
+      - ./todo-frontend/src:/app/src
+      - /app/node_modules
+    restart: unless-stopped
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+    driver: local

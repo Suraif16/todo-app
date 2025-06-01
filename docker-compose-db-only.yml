@@ -1,0 +1,25 @@
+services:
+  # MariaDB Database
+  database:
+    image: mariadb:10.11
+    container_name: todo-database
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: todoapp
+      MYSQL_USER: todouser
+      MYSQL_PASSWORD: todopass123
+    ports:
+      - "3307:3306"  # Using 3307 to match your current setup
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "todouser", "-ptodopass123"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 30s
+
+volumes:
+  mariadb_data:
+    driver: local
