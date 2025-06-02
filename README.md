@@ -16,7 +16,7 @@ A modern full-stack todo application built with **React**, **Spring Boot**, and 
 - **Backend**: Spring Boot 3.2, Spring Security, Spring Data JPA, JWT Authentication
 - **Database**: MariaDB 10.11
 - **Containerization**: Docker & Docker Compose
-- **Testing**: Jest, React Testing Library, JUnit 5, Mockito, Spring Boot Test
+- **Testing**: Jest, React Testing Library, JUnit 5, Mockito, Spring Boot Test, Cypress for End to end testing
 
 ## ✨ **Features Implemented**
 
@@ -39,6 +39,7 @@ A modern full-stack todo application built with **React**, **Spring Boot**, and 
 - 🔒 JWT-based security
 - 📝 Input validation
 - 🎨 Modern UX with toast notifications
+- ✅ Comprehensive unit and integration tests
 
 ## 🚀 **Quick Start**
 
@@ -133,6 +134,26 @@ npm run test:coverage
 open coverage/lcov-report/index.html
 ```
 
+### **Run End to end Tests**
+```bash
+cd frontend
+
+# Install Cypress (if not already installed)
+npm install --save-dev cypress
+
+# Run E2E tests (headless)
+npm run e2e
+
+# Open Cypress Test Runner (interactive)
+npm run e2e:open
+
+# Run E2E tests against running application
+# Make sure app is running on http://localhost:3000
+npx cypress run
+```
+
+
+
 ## 🧑‍💻 **User Guide**
 
 ### **Getting Started**
@@ -198,7 +219,12 @@ todo-app/
 │       ├── services/            # API services
 │       ├── utils/               # Utility functions
 │       └── hooks/               # Custom React hooks
-│
+│   ├── cypress/                             # E2E tests
+│   │   ├── e2e/                            # Test specifications
+│   │   │   ├── basic-functionality.cy.js   # Front end only
+│   │   │   ├── complete-user-journey.cy.js # Complete user journey
+│   │   ├── fixtures/                       # Test data
+│   │   └── support/                        # Test utilities
 └── database/
     └── init.sql                 # Database initialization
 ```
